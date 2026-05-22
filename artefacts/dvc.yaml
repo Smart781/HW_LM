@@ -1,0 +1,37 @@
+stages:
+  compare_models:
+    cmd: python compare_models.py
+    deps:
+    - saved_models/model_resnet18_base.pth
+    - saved_models/model_resnet18_finetuned.pth
+    metrics:
+    - logs/comparison_results.json
+  finetune:
+    cmd: python finetune_model.py
+    deps:
+    - ai-vs-human-generated-dataset-hw/Train_2/train.csv
+    - ai-vs-human-generated-dataset-hw/Train_2
+    - saved_models/model_resnet18_base.pth
+    metrics:
+    - logs/test2_metrics.json
+    outs:
+    - saved_models/model_resnet18_finetuned.pth
+  train_base:
+    cmd: python train_base.py
+    deps:
+    - ai-vs-human-generated-dataset-hw/Train_1/train.csv
+    - ai-vs-human-generated-dataset-hw/Train_1
+    metrics:
+    - logs/test1_metrics.json
+    outs:
+    - saved_models/model_resnet18_base.pth
+  upload_finetuned_to_s3:
+    cmd: python upload_to_s3.py --model finetuned
+    deps:
+    - saved_models/model_resnet18_finetuned.pth
+    outs: []
+  upload_to_s3:
+    cmd: python upload_to_s3.py --model base
+    deps:
+    - saved_models/model_resnet18_base.pth
+    outs: []
